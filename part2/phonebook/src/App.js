@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import Notification from "./components/Notification";
 import servicePersons from "./services/personService";
 
 const App = () => {
@@ -10,6 +11,7 @@ const App = () => {
     const [newName, setNewName] = useState("");
     const [newNumber, setNewNumber] = useState("");
     const [newSearch, setNewSearch] = useState("");
+    const [notification, setNotification] = useState(null);
 
     //When a state change, the component re-render and need to update the list of persons to show
     const personsToShow =
@@ -24,30 +26,54 @@ const App = () => {
 
         const newPhonebook = {
             name: newName.trim(),
-            number: newNumber.trim()
-        }
+            number: newNumber.trim(),
+        };
 
         //this function returns the contact if already exist in the database
-        const pre_existing_Contact = persons.find( (person) => person.name.trim().toLowerCase() === newPhonebook.name.toLowerCase() ? person : undefined)
-        
+        const pre_existing_Contact = persons.find((person) =>
+            person.name.trim().toLowerCase() === newPhonebook.name.toLowerCase()
+                ? person
+                : undefined
+        );
+
         //if contact exist
         if (
             pre_existing_Contact &&
             window.confirm(
                 `${newPhonebook.name} is already added to the phonebook, do you want to replace the old number with a new one?`
             )
-        ) 
-        {   //update number
+        ) {
+            //update number
             console.log(pre_existing_Contact);
             servicePersons
                 .update(pre_existing_Contact.id, newPhonebook)
-                .then(
-                    newContact => setPersons(persons.map(person => person.id === newContact.id ? newContact : person))      
-                )
+                .then((newContact) => {
+                    setPersons(
+                        persons.map((person) =>
+                            person.id === newContact.id ? newContact : person
+                        )
+                    );
+                    setNotification({
+                        message: `Updated ${newContact.name} number`,
+                        color: "green",
+                    });
+                    setTimeout(() => {
+                        setNotification(null);
+                    }, 5000);
+                })
+                .catch((err) => {
+                    console.log(err);
+                    setNotification({
+                        message: `Information of ${newPhonebook.name} has already been removed from server`,
+                        color: "red",
+                    });
+                    setTimeout(() => {
+                        setNotification(null);
+                    }, 5000);
+                });
             setNewName("");
             setNewNumber("");
         }
-
 
         //if name not exist
         else {
@@ -55,6 +81,13 @@ const App = () => {
                 .create(newPhonebook)
                 .then((newContact) => {
                     setPersons([...persons, newContact]);
+                    setNotification({
+                        message: `Added ${newContact.name}`,
+                        color: "green",
+                    });
+                    setTimeout(() => {
+                        setNotification(null);
+                    }, 5000);
                 })
                 .catch((err) => console.log(err));
 
@@ -96,6 +129,9 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
+            <Notification
+                notification={notification}
+            />
             <Filter
                 handleSearchChange={handleSearchChange}
                 newSearch={newSearch}
