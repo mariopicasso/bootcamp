@@ -7,6 +7,10 @@
     "lint": "standard .",
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "build:ui": "rm -rf build && cd ../../part2/phonebook && npm run build --prod && cp -r build ../../part3/phonebook",
+    "deploy": "cd ../.. && git subtree push --prefix part3/phonebook heroku main",
+    "deploy:full": "npm run build:ui && cd ../.. && git add . && git commit -m uibuild && git push origin main && cd part3/phonebook && npm run deploy",    
+    "logs:prod": "cd ../.. && heroku logs --tail",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
