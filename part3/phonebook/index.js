@@ -55,22 +55,12 @@ app.post('/api/persons', (request, response, next) => {
   if (!request.body.name || !request.body.number) {
     response.status(400).json({ error: 'content missing' })
   }
-
-  Person.findOne({ name: request.body.name })
-    .then(
-      (person) => {
-        console.log(person)
-        if (person) {
-          response.status(400).json({ error: 'name must be unique' })
-        } else {
-          const person = new Person({
-            name: request.body.name,
-            number: request.body.number
-          })
-          person.save().then(savedPerson => response.status(201).json(savedPerson))
-        }
-      }
-    )
+  const person = new Person({
+    name: request.body.name,
+    number: request.body.number
+  })
+  person.save()
+    .then(savedPerson => response.status(201).json(savedPerson))
     .catch(err => next(err))
 })
 
