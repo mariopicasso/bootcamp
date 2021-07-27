@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+content-type: application/json
+
+{
+    "title": "carlos santana vive",
+    "autor": "nosadklj",
+    "url": "fullstackopen.com",
+    "likes": 21
+}
